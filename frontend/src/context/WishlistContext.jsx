@@ -4,12 +4,23 @@ import { useAuth } from "./AuthContext";
 const WishlistContext = createContext(null);
 const LEGACY_WISHLIST_KEY = "shopcart_wishlist";
 
-const storageKey = (userId) => `shopcart_wishlist_${userId}`;
+const storageKey = (userId) => `shoprivo_wishlist_${userId}`;
+const legacyStorageKey = (userId) => `shopcart_wishlist_${userId}`;
 
 const readWishlist = (userId) => {
   if (!userId) return [];
   try {
-    const raw = localStorage.getItem(storageKey(userId));
+    const key = storageKey(userId);
+    let raw = localStorage.getItem(key);
+    if (!raw) {
+      // One-time migration from the pre-rebrand key.
+      const legacyRaw = localStorage.getItem(legacyStorageKey(userId));
+      if (legacyRaw) {
+        localStorage.setItem(key, legacyRaw);
+        localStorage.removeItem(legacyStorageKey(userId));
+        raw = legacyRaw;
+      }
+    }
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];

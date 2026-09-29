@@ -84,7 +84,7 @@ export function LoginModal({ open, onClose, onSwitch, onForgot }) {
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Sign in to ShopCart" width="max-w-md">
+    <Modal open={open} onClose={onClose} title="Sign in to ShopRivo" width="max-w-md">
       <p className="-mt-2 mb-5 text-sm text-gray-500">Welcome back! Please sign in to continue</p>
       <GoogleAuthSection />
       <form onSubmit={submit} className="space-y-4">

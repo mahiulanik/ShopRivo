@@ -84,7 +84,7 @@ function SidebarContent({ onNavigate }) {
         <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-admin-600 text-white">
           <ShoppingBag size={18} />
         </span>
-        <span className="text-xl font-bold">E-store</span>
+        <span className="text-xl font-bold">ShopRivo</span>
       </Link>
 
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 pb-6 scrollbar-thin">
@@ -295,7 +295,7 @@ export default function AdminLayout() {
         </main>
 
         <footer className="border-t border-gray-200 py-5 text-center text-xs text-gray-500 dark:border-gray-800">
-          © {new Date().getFullYear()} E-store. All Rights Reserved.
+          © {new Date().getFullYear()} ShopRivo. All Rights Reserved.
         </footer>
       </div>
     </div>

@@ -62,7 +62,7 @@ export default function ContactPage() {
           {[
             { icon: MapPin, title: "Visit Us", value: "New Orleans, USA" },
             { icon: Phone, title: "Call Us", value: "+12 958 648 597" },
-            { icon: Mail, title: "Email Us", value: "Shopcart@gmail.com" },
+            { icon: Mail, title: "Email Us", value: "shoprivo@gmail.com" },
             { icon: Clock, title: "Working Hours", value: "Mon - Sat: 10:00 AM - 7:00 PM" },
           ].map((item) => (
             <div key={item.title} className="card flex items-center gap-4 p-5">

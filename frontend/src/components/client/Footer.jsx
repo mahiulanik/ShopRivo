@@ -54,7 +54,7 @@ export default function Footer() {
           <Mail className="mt-1 shrink-0 text-brand-700" size={20} />
           <div>
             <p className="font-semibold">Email Us</p>
-            <p className="text-sm text-gray-500">Shopcart@gmail.com</p>
+            <p className="text-sm text-gray-500">shoprivo@gmail.com</p>
           </div>
         </div>
       </div>
@@ -62,11 +62,11 @@ export default function Footer() {
       <div className="container-x grid gap-10 border-t border-gray-100 py-10 sm:grid-cols-2 lg:grid-cols-4 dark:border-gray-800">
         <div>
           <p className="text-xl font-extrabold">
-            <span className="text-gray-900 dark:text-white">SHOP</span>
-            <span className="text-brand-700">CART</span>
+            <span className="text-gray-900 dark:text-white">Shop</span>
+            <span className="text-brand-700">Rivo</span>
           </p>
           <p className="mt-3 max-w-xs text-sm leading-6 text-gray-500">
-            Discover curated collections at Shopcart, blending style and comfort to elevate your
+            Discover curated collections at ShopRivo, blending style and comfort to elevate your
             living spaces.
           </p>
           <div className="mt-4 flex gap-2.5">
@@ -132,7 +132,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-gray-100 py-5 text-center text-sm text-gray-500 dark:border-gray-800">
-        © {new Date().getFullYear()} <span className="font-bold text-gray-800 dark:text-gray-200">SHOPCART</span>. All rights reserved.
+        © {new Date().getFullYear()} <span className="font-bold text-gray-800 dark:text-gray-200">ShopRivo</span>. All rights reserved.
       </div>
     </footer>
   );

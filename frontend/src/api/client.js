@@ -6,12 +6,26 @@ import axios from "axios";
 // Set VITE_API_URL only for deployments where the API is on another origin.
 const BASE_URL = (import.meta.env.VITE_API_URL || "").trim().replace(/\/+$/, "");
 export const API_BASE_URL = BASE_URL;
-const ACCESS_TOKEN_KEY = "shopcart_access_token";
+const ACCESS_TOKEN_KEY = "shoprivo_access_token";
+const LEGACY_ACCESS_TOKEN_KEY = "shopcart_access_token";
 
-export const getAccessToken = () => localStorage.getItem(ACCESS_TOKEN_KEY);
+export const getAccessToken = () => {
+  const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+  if (token) return token;
+  // One-time migration from the pre-rebrand key.
+  const legacy = localStorage.getItem(LEGACY_ACCESS_TOKEN_KEY);
+  if (legacy) {
+    localStorage.setItem(ACCESS_TOKEN_KEY, legacy);
+    localStorage.removeItem(LEGACY_ACCESS_TOKEN_KEY);
+    return legacy;
+  }
+  return null;
+};
+
 export const setAccessToken = (token) => {
   if (token) localStorage.setItem(ACCESS_TOKEN_KEY, token);
   else localStorage.removeItem(ACCESS_TOKEN_KEY);
+  localStorage.removeItem(LEGACY_ACCESS_TOKEN_KEY);
 };
 
 const api = axios.create({

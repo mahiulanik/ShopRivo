@@ -77,13 +77,13 @@ export default function AboutPage() {
       {/* Hero */}
       <section className="rounded-2xl bg-gradient-to-br from-brand-700 via-brand-600 to-brand-800 px-8 py-12 text-white sm:px-12 sm:py-16">
         <p className="text-sm font-semibold uppercase tracking-widest text-brand-200">
-          About ShopCart
+          About ShopRivo
         </p>
         <h1 className="mt-3 max-w-2xl text-3xl font-extrabold leading-tight sm:text-4xl">
           Gadgets you&apos;ll love. Prices you&apos;ll trust.
         </h1>
         <p className="mt-4 max-w-xl text-sm leading-relaxed text-brand-100 sm:text-base">
-          ShopCart is a modern online store built to make shopping simple: curated
+          ShopRivo is a modern online store built to make shopping simple: curated
           electronics and accessories, transparent pricing, and a checkout that takes
           under a minute.
         </p>
@@ -118,7 +118,7 @@ export default function AboutPage() {
         <div>
           <h2 className="text-2xl font-bold">Our story</h2>
           <p className="mt-4 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
-            ShopCart started with a simple frustration: online shopping should not feel
+            ShopRivo started with a simple frustration: online shopping should not feel
             like a gamble. Product pages hid fees, reviews faked trust, and support was a
             black hole.
           </p>

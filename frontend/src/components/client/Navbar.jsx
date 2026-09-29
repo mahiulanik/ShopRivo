@@ -77,8 +77,8 @@ export default function Navbar() {
       <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur">
         <div className="container-x relative flex h-[70px] items-center gap-3">
           <Link to="/" className="shrink-0 text-2xl font-extrabold tracking-tight">
-            <span className="text-gray-900">SHOP</span>
-            <span className="text-brand-700">CART</span>
+            <span className="text-gray-900">Shop</span>
+            <span className="text-brand-700">Rivo</span>
           </Link>
 
           <nav className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-8 lg:flex">
