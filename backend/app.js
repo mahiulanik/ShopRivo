@@ -46,7 +46,7 @@ if (process.env.NODE_ENV === "production") {
 // CORS
 const allowedOrigins = [
     "http://localhost:5173",
-    "https://hrmsync.vercel.app",
+    "https://shoprivo.vercel.app",
 ];
 
 
