@@ -6,7 +6,7 @@ export const generateAccessToken = (user_id, role) => {
     { user_id, role },
     process.env.JWT_SECRET,
     {
-      expiresIn: "7d",
+      expiresIn: "15m",
       algorithm: "HS256",
     }
   );
@@ -19,7 +19,7 @@ export const generateRefreshToken = (user_id) => {
     { user_id, jti: crypto.randomUUID() },
     process.env.JWT_REFRESH_SECRET,
     {
-      expiresIn: "15d",
+      expiresIn: "7d",
       algorithm: "HS256",
     }
   );
