@@ -6,7 +6,7 @@ import { createPaymentsTable } from "../models/paymentsTable.js";
 import { createProductReviewsTable } from "../models/productReviewsTable.js";
 import { createProductsTable } from "../models/productTable.js";
 import { createCategoriesTable } from "../models/categoryTable.js";
-import { createShippingInfoTable } from "../models/shippinginfoTable.js";
+import { createShippingInfoTable } from "../models/shippingInfoTable.js";
 import { createMediaTable } from "../models/mediaTable.js";
 import { createCouponsTable } from "../models/couponTable.js";
 
