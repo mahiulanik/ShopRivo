@@ -33,7 +33,7 @@ const SLIDES = [
   },
 ];
 
-const AUTOPLAY_MS = 2000;
+const AUTOPLAY_MS = 3000;
 const SWIPE_THRESHOLD = 45;
 
 function useMediaQuery(query) {
@@ -70,6 +70,16 @@ export default function HeroCarousel() {
     return () => clearInterval(timer);
   }, [count]);
 
+  // Warm up the next slide so lazily-loaded banners never appear blank.
+  useEffect(() => {
+    const next = new Image();
+    next.src = SLIDES[(index + 1) % count].src;
+    return () => {
+      next.onload = null;
+      next.onerror = null;
+    };
+  }, [index, count]);
+
   const onTouchStart = (event) => {
     touchStartX.current = event.touches[0].clientX;
   };
@@ -91,7 +101,7 @@ export default function HeroCarousel() {
       onTouchEnd={onTouchEnd}
     >
       <div
-        className={`flex aspect-[16/9] sm:aspect-[12/5] lg:aspect-[8/3] ${
+        className={`flex aspect-[2/1] sm:aspect-[5/2] lg:aspect-[16/5] ${
           reducedMotion ? "" : "transition-transform duration-500 ease-out"
         }`}
         style={{ transform: `translate3d(-${index * 100}%, 0, 0)` }}
@@ -115,6 +125,9 @@ export default function HeroCarousel() {
                 src={slide.src}
                 alt={slide.alt}
                 draggable={false}
+                loading={i === 0 ? "eager" : "lazy"}
+                fetchpriority={i === 0 ? "high" : undefined}
+                decoding="async"
                 className={`relative h-full w-full select-none object-cover object-left ${slide.position}`}
               />
             </Link>

@@ -139,17 +139,17 @@ export default function ProductCard({ product }) {
               : "In Stock"}
         </p>
         <p className="text-base font-bold">{formatPrice(displayPrice)}</p>
-        <div className="mt-auto flex gap-2">
+        <div className="mt-auto flex flex-wrap gap-2">
           <button
             onClick={addToCart}
-            className="btn-primary flex-1 justify-center py-2"
+            className="btn-primary flex-1 justify-center whitespace-nowrap px-2.5 py-2 sm:px-3"
             disabled={stock <= 0}
           >
             <ShoppingBag size={15} /> Add to Cart
           </button>
           <button
             onClick={buyNow}
-            className="btn-dark flex-1 justify-center py-2"
+            className="btn-dark flex-1 justify-center whitespace-nowrap px-2.5 py-2 sm:px-3"
             disabled={stock <= 0}
           >
             Buy Now

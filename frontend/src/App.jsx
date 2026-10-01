@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import AdminLayout from "./components/admin/AdminLayout";
 import Footer from "./components/client/Footer";
@@ -6,30 +6,43 @@ import Navbar from "./components/client/Navbar";
 import PageLoader from "./components/common/Loader";
 import { useAuth } from "./context/AuthContext";
 import { AdminOnly, RequireAdmin, RequireAuth } from "./routes/Guards";
-import AccountPage from "./pages/client/AccountPage";
-import AboutPage from "./pages/client/AboutPage";
-import CartPage from "./pages/client/CartPage";
-import CheckoutPage from "./pages/client/CheckoutPage";
-import ContactPage from "./pages/client/ContactPage";
 import HomePage from "./pages/client/HomePage";
-import OrderSuccessPage from "./pages/client/OrderSuccessPage";
-import OrdersPage from "./pages/client/OrdersPage";
-import OAuthSuccess from "./pages/client/OAuthSuccess";
-import ProductPage from "./pages/client/ProductPage";
-import ShopPage from "./pages/client/ShopPage";
-import WishlistPage from "./pages/client/WishlistPage";
-import { ForgotPasswordPage, ResetPasswordPage } from "./pages/client/AuthPages";
-import AdminCategories from "./pages/admin/AdminCategories";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import Admins from "./pages/admin/Admins";
-import AdminCustomers from "./pages/admin/AdminCustomers";
-import AdminMedia from "./pages/admin/AdminMedia";
-import AdminOrderDetail from "./pages/admin/AdminOrderDetail";
-import AdminOrders from "./pages/admin/AdminOrders";
-import AdminProductForm from "./pages/admin/AdminProductForm";
-import AdminProducts from "./pages/admin/AdminProducts";
-import AdminReviews from "./pages/admin/AdminReviews";
-import { AdminCouponForm, AdminCoupons } from "./pages/admin/AdminCoupons";
+
+// Route-level code splitting: only the active route's chunk is downloaded.
+const ShopPage = lazy(() => import("./pages/client/ShopPage"));
+const ProductPage = lazy(() => import("./pages/client/ProductPage"));
+const AboutPage = lazy(() => import("./pages/client/AboutPage"));
+const ContactPage = lazy(() => import("./pages/client/ContactPage"));
+const ForgotPasswordPage = lazy(() =>
+  import("./pages/client/AuthPages").then((m) => ({ default: m.ForgotPasswordPage }))
+);
+const ResetPasswordPage = lazy(() =>
+  import("./pages/client/AuthPages").then((m) => ({ default: m.ResetPasswordPage }))
+);
+const OAuthSuccess = lazy(() => import("./pages/client/OAuthSuccess"));
+const CartPage = lazy(() => import("./pages/client/CartPage"));
+const CheckoutPage = lazy(() => import("./pages/client/CheckoutPage"));
+const OrderSuccessPage = lazy(() => import("./pages/client/OrderSuccessPage"));
+const OrdersPage = lazy(() => import("./pages/client/OrdersPage"));
+const WishlistPage = lazy(() => import("./pages/client/WishlistPage"));
+const AccountPage = lazy(() => import("./pages/client/AccountPage"));
+
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
+const AdminProductForm = lazy(() => import("./pages/admin/AdminProductForm"));
+const AdminOrders = lazy(() => import("./pages/admin/AdminOrders"));
+const AdminOrderDetail = lazy(() => import("./pages/admin/AdminOrderDetail"));
+const AdminCustomers = lazy(() => import("./pages/admin/AdminCustomers"));
+const Admins = lazy(() => import("./pages/admin/Admins"));
+const AdminCategories = lazy(() => import("./pages/admin/AdminCategories"));
+const AdminCoupons = lazy(() =>
+  import("./pages/admin/AdminCoupons").then((m) => ({ default: m.AdminCoupons }))
+);
+const AdminCouponForm = lazy(() =>
+  import("./pages/admin/AdminCoupons").then((m) => ({ default: m.AdminCouponForm }))
+);
+const AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
+const AdminMedia = lazy(() => import("./pages/admin/AdminMedia"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -43,7 +56,9 @@ function ClientLayout({ children }) {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1">
+        <Suspense fallback={<PageLoader label="Loading page..." />}>{children}</Suspense>
+      </main>
       <Footer />
     </div>
   );

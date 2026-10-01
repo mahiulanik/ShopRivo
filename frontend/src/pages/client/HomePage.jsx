@@ -59,8 +59,6 @@ export default function HomePage() {
       .finally(() => setLoading(false));
   }, [toast]);
 
-  if (loading) return <PageLoader label="Loading the store..." />;
-
   return (
     <div>
       {/* Hero */}
@@ -105,18 +103,26 @@ export default function HomePage() {
       ) : null}
 
       {/* New arrivals */}
-      {data?.newProducts?.length ? (
+      {loading ? (
         <section className="container-x mt-8">
-          <ProductCarousel title="New Arrivals" to="/shop" products={data.newProducts} />
+          <PageLoader label="Loading the store..." />
         </section>
-      ) : null}
+      ) : (
+        <>
+          {data?.newProducts?.length ? (
+            <section className="container-x mt-8">
+              <ProductCarousel title="New Arrivals" to="/shop" products={data.newProducts} />
+            </section>
+          ) : null}
 
-      {/* Top rated */}
-      {data?.topRatedProducts?.length ? (
-        <section className="container-x mt-12">
-          <ProductCarousel title="Top Rated" to="/shop" products={data.topRatedProducts} />
-        </section>
-      ) : null}
+          {/* Top rated */}
+          {data?.topRatedProducts?.length ? (
+            <section className="container-x mt-12">
+              <ProductCarousel title="Top Rated" to="/shop" products={data.topRatedProducts} />
+            </section>
+          ) : null}
+        </>
+      )}
 
       {/* Value props */}
       <section className="container-x mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

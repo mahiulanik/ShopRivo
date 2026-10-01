@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   ChevronDown,
@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
+import PageLoader from "../common/Loader";
 import Avatar from "../common/Avatar";
 
 const nav = [
@@ -291,7 +292,9 @@ export default function AdminLayout() {
         </header>
 
         <main className="px-4 py-6 sm:px-6">
-          <Outlet context={{ title }} />
+          <Suspense fallback={<PageLoader label="Loading page..." />}>
+            <Outlet context={{ title }} />
+          </Suspense>
         </main>
 
         <footer className="border-t border-gray-200 py-5 text-center text-xs text-gray-500 dark:border-gray-800">

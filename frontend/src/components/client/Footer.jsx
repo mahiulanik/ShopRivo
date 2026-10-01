@@ -11,7 +11,7 @@ const quickLinks = [
   { to: "/contact", label: "FAQs" },
 ];
 
-const categories = ["Mobiles", "Appliances", "Smartphones", "Air Conditioners", "Washing Machine", "Gadget Accessories"];
+const categories = ["Appliances", "Gadgets", "Phones", "Watches"];
 
 const socials = [Youtube, Twitter, Linkedin, Facebook, Instagram, Github];
 
@@ -33,7 +33,7 @@ export default function Footer() {
           <MapPin className="mt-1 shrink-0 text-brand-700" size={20} />
           <div>
             <p className="font-semibold">Visit Us</p>
-            <p className="text-sm text-gray-500">New Orleans, USA</p>
+            <p className="text-sm text-gray-500">Dhaka, Bangladesh</p>
           </div>
         </div>
         <div className="flex gap-3">

@@ -4,7 +4,7 @@ import * as couponService from "../services/couponService.js";
 
 export const getAllCouponsController = asyncErrorsHandler(async (req, res) => {
 
-    const { coupons } = await couponService.getAllCoupons();
+    const coupons = await couponService.getAllCoupons();
 
     return res.status(200).json({
         success: true,

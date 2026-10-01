@@ -53,7 +53,7 @@ const generateEmailTemplate = (resetPasswordUrl) => {
                                     font-size: 24px;
                                     font-weight: 600;
                                 ">
-                                    Ecommerce
+                                    ShopRiva
                                 </h1>
                             </td>
                         </tr>
@@ -199,7 +199,7 @@ const generateEmailTemplate = (resetPasswordUrl) => {
                                     color: #666666;
                                 ">
                                     Thank you,<br>
-                                    <strong>Ecommerce Team</strong>
+                                    <strong>ShopRiva Team</strong>
                                 </p>
 
                                 <p style="

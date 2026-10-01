@@ -60,7 +60,7 @@ export default function ContactPage() {
 
         <div className="space-y-4">
           {[
-            { icon: MapPin, title: "Visit Us", value: "New Orleans, USA" },
+            { icon: MapPin, title: "Visit Us", value: "Dhaka, Bangladesh" },
             { icon: Phone, title: "Call Us", value: "+12 958 648 597" },
             { icon: Mail, title: "Email Us", value: "shoprivo@gmail.com" },
             { icon: Clock, title: "Working Hours", value: "Mon - Sat: 10:00 AM - 7:00 PM" },

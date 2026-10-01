@@ -537,17 +537,7 @@ export const fetchAllProducts = async (queryParams) => {
             : "";
 
 
-    const totalResult = await database.query(
-        `SELECT COUNT(*) AS total
-         FROM products
-         ${whereClause}`,
-        values
-    );
-
-    const totalProducts =
-        Number(totalResult.rows[0].total);
-
-
+    // Pagination parameters
     const productValues = [...values];
 
     productValues.push(limit);
@@ -557,58 +547,86 @@ export const fetchAllProducts = async (queryParams) => {
     const offsetParameter = `$${parameterIndex}`;
 
 
-    const productsResult = await database.query(
-        `SELECT
-            products.*,
-            COUNT(reviews.id)::INTEGER AS review_count
-         FROM products
-         LEFT JOIN reviews
-         ON products.id = reviews.product_id
-         ${whereClause}
-         GROUP BY products.id
-         ORDER BY products.created_at DESC
-         LIMIT ${limitParameter}
-         OFFSET ${offsetParameter}`,
-        productValues
-    );
+    // Run independent queries in parallel
+    const [
+        totalResult,
+        productsResult,
+        newProductsResult,
+        topRatedProductsResult,
+        priceBoundsResult
+    ] = await Promise.all([
+
+        // Total products
+        database.query(
+            `SELECT COUNT(*) AS total
+             FROM products
+             ${whereClause}`,
+            values
+        ),
 
 
-    const newProductsResult = await database.query(
-        `SELECT
-            products.*,
-            COUNT(reviews.id)::INTEGER AS review_count
-         FROM products
-         LEFT JOIN reviews
-         ON products.id = reviews.product_id
-         WHERE products.created_at >= NOW() - INTERVAL '30 days'
-         GROUP BY products.id
-         ORDER BY products.created_at DESC
-         LIMIT 8`
-    );
+        // Paginated products
+        database.query(
+            `SELECT
+                products.*,
+                COUNT(reviews.id)::INTEGER AS review_count
+             FROM products
+             LEFT JOIN reviews
+             ON products.id = reviews.product_id
+             ${whereClause}
+             GROUP BY products.id
+             ORDER BY products.created_at DESC
+             LIMIT ${limitParameter}
+             OFFSET ${offsetParameter}`,
+            productValues
+        ),
 
 
-    const topRatedProductsResult = await database.query(
-        `SELECT
-            products.*,
-            COUNT(reviews.id)::INTEGER AS review_count
-         FROM products
-         LEFT JOIN reviews
-         ON products.id = reviews.product_id
-         WHERE products.ratings >= 4.5
-         GROUP BY products.id
-         ORDER BY
-            products.ratings DESC,
-            products.created_at DESC
-         LIMIT 8`
-    );
+        // New products
+        database.query(
+            `SELECT
+                products.*,
+                COUNT(reviews.id)::INTEGER AS review_count
+             FROM products
+             LEFT JOIN reviews
+             ON products.id = reviews.product_id
+             WHERE products.created_at >= NOW() - INTERVAL '30 days'
+             GROUP BY products.id
+             ORDER BY products.created_at DESC
+             LIMIT 8`
+        ),
 
 
-    const priceBoundsResult = await database.query(
-        `SELECT COALESCE(MAX(price), 0) AS max_price
-         FROM products`
-    );
+        // Top rated products
+        database.query(
+            `SELECT
+                products.*,
+                COUNT(reviews.id)::INTEGER AS review_count
+             FROM products
+             LEFT JOIN reviews
+             ON products.id = reviews.product_id
+             WHERE products.ratings >= 4.5
+             GROUP BY products.id
+             ORDER BY
+                products.ratings DESC,
+                products.created_at DESC
+             LIMIT 8`
+        ),
 
-    const maxPrice = Number(priceBoundsResult.rows[0].max_price) || 0;
+
+        // Maximum product price
+        database.query(
+            `SELECT COALESCE(MAX(price), 0) AS max_price
+             FROM products`
+        )
+    ]);
+
+
+    const totalProducts =
+        Number(totalResult.rows[0].total);
+
+    const maxPrice =
+        Number(priceBoundsResult.rows[0].max_price) || 0;
 
 
     return {
@@ -645,6 +663,7 @@ export const updateProduct = async (
     } = data;
 
 
+    // Find existing product
     const existingProduct = await database.query(
         `SELECT *
          FROM products
@@ -664,17 +683,21 @@ export const updateProduct = async (
         existingProduct.rows[0];
 
 
+    // Normal product images
     const imageFiles =
         Array.isArray(files)
             ? files
             : files?.images || [];
 
+
+    // Color specific images
     const colorImageFiles =
         Array.isArray(files)
             ? []
             : files?.color_images || [];
 
 
+    // Existing images selected by frontend
     const hasKeepList =
         data.existing_images !== undefined;
 
@@ -686,6 +709,7 @@ export const updateProduct = async (
             : [];
 
 
+    // Current values
     let updatedName = product.name;
     let updatedDescription = product.description;
     let updatedPrice = product.price;
@@ -697,6 +721,7 @@ export const updateProduct = async (
     let updatedImages = product.images || [];
 
 
+    // Name
     if (name !== undefined) {
 
         updatedName = name.trim();
@@ -710,6 +735,7 @@ export const updateProduct = async (
     }
 
 
+    // Description
     if (description !== undefined) {
 
         updatedDescription =
@@ -724,6 +750,7 @@ export const updateProduct = async (
     }
 
 
+    // Category
     if (category !== undefined) {
 
         updatedCategory =
@@ -738,6 +765,7 @@ export const updateProduct = async (
     }
 
 
+    // Price
     if (price !== undefined) {
 
         const value = Number(price);
@@ -756,6 +784,7 @@ export const updateProduct = async (
     }
 
 
+    // Stock
     if (stock !== undefined) {
 
         const value = Number(stock);
@@ -774,12 +803,14 @@ export const updateProduct = async (
     }
 
 
+    // Legacy single color
     if (color !== undefined) {
         updatedColor =
             color?.trim() || null;
     }
 
 
+    // Colors
     if (colors !== undefined) {
 
         updatedColors =
@@ -792,7 +823,9 @@ export const updateProduct = async (
     }
 
 
+    // Variants
     if (variants !== undefined) {
+
         updatedVariants =
             validateVariants(
                 parseOptionList(variants)
@@ -800,18 +833,33 @@ export const updateProduct = async (
     }
 
 
+    /*
+     * Keep existing images.
+     *
+     * Cloudinary:
+     * public_id is used.
+     *
+     * Seeded / external images:
+     * URL is used because public_id is null.
+     */
     const keptImages =
         hasKeepList
-            ? updatedImages.filter(
-                (image) =>
-                    image.public_id &&
+            ? updatedImages.filter((image) => {
+
+                const imageIdentifier =
+                    image.public_id || image.url;
+
+                return (
+                    imageIdentifier &&
                     keepList.includes(
-                        image.public_id
+                        String(imageIdentifier)
                     )
-            )
+                );
+            })
             : null;
 
 
+    // Maximum image validation
     if (
         keptImages &&
         keptImages.length + imageFiles.length > 10
@@ -821,6 +869,7 @@ export const updateProduct = async (
             400
         );
     }
+
 
     if (imageFiles.length > 10) {
         throw new ErrorHandler(
@@ -836,16 +885,18 @@ export const updateProduct = async (
 
     try {
 
-        // Product Images
+        // Upload normal product images
         for (const image of imageFiles) {
 
-            const uploaded = await uploadImage(
-                image.buffer,
-                "ecommerce/products"
-            );
+            const uploaded =
+                await uploadImage(
+                    image.buffer,
+                    "ecommerce/products"
+                );
 
             uploadedImages.push({
-                public_id: uploaded.public_id,
+                public_id:
+                    uploaded.public_id,
                 url:
                     uploaded.secure_url ||
                     uploaded.secured_url,
@@ -853,6 +904,10 @@ export const updateProduct = async (
         }
 
 
+        /*
+         * If frontend sent existing_images,
+         * keep selected old images + new uploads.
+         */
         if (keptImages !== null) {
 
             updatedImages = [
@@ -867,7 +922,7 @@ export const updateProduct = async (
         }
 
 
-        // Color Images
+        // Color images
         if (colors !== undefined) {
 
             let colorImageIndex = 0;
@@ -888,19 +943,23 @@ export const updateProduct = async (
                         );
                     }
 
+
                     const uploaded =
                         await uploadImage(
                             file.buffer,
                             "ecommerce/products"
                         );
 
+
                     const image = {
                         public_id:
                             uploaded.public_id,
+
                         url:
                             uploaded.secure_url ||
                             uploaded.secured_url,
                     };
+
 
                     uploadedColorImages.push(
                         image
@@ -908,6 +967,7 @@ export const updateProduct = async (
 
                     color.image = image;
                 }
+
 
                 delete color.hasNewImage;
 
@@ -917,7 +977,10 @@ export const updateProduct = async (
         }
 
 
-        // Use color images if no normal image remains
+        /*
+         * If there are no normal product images,
+         * use available color images.
+         */
         if (updatedImages.length === 0) {
 
             updatedImages =
@@ -930,6 +993,7 @@ export const updateProduct = async (
         }
 
 
+        // Update database
         const result = await database.query(
             `UPDATE products
              SET name = $1,
@@ -958,6 +1022,7 @@ export const updateProduct = async (
         );
 
 
+        // Register newly uploaded media
         await registerMedia([
             ...uploadedImages,
             ...uploadedColorImages,
@@ -968,12 +1033,21 @@ export const updateProduct = async (
 
     } catch (error) {
 
+        /*
+         * Database/update failure হলে
+         * newly uploaded Cloudinary images cleanup
+         */
         const uploaded = [
             ...uploadedImages,
             ...uploadedColorImages,
         ];
 
+
         for (const image of uploaded) {
+
+            if (!image.public_id) {
+                continue;
+            }
 
             try {
 
@@ -989,6 +1063,7 @@ export const updateProduct = async (
                 );
             }
         }
+
 
         throw error;
     }

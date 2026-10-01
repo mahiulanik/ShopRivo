@@ -265,7 +265,7 @@ export const forgotPassword = async (email, frontendUrl) => {
 
         await sendEmail(
             user.email,
-            "E-commerce Password Recovery",
+            "ShopRiva - Password Recovery",
             message
         );
 
