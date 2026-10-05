@@ -7,45 +7,16 @@ import stripe from "../config/stripe.js";
 
 export const placeNewOrder = async (user_id, data) => {
 
-    const {
-        city,
-        country,
-        address,
-        pincode,
-        phone,
-        payment_type,
-        orderedItems,
-        coupon_code,
-    } = data;
+    const {city, country, address, pincode, phone, payment_type, orderedItems, coupon_code,} = data;
 
-    const contact_name =
-        data.contact_name?.trim() ||
-        data.full_name?.trim() ||
-        "";
+    const contact_name = data.contact_name?.trim() || data.full_name?.trim() || "";
 
-    const district =
-        data.district?.trim() ||
-        data.state?.trim() ||
-        "";
+    const district = data.district?.trim() || data.state?.trim() || "";
 
-    const area =
-        data.area?.trim() ||
-        data.landmark?.trim() ||
-        null;
+    const area = data.area?.trim() || data.landmark?.trim() || null;
 
-    if (
-        !contact_name ||
-        !district ||
-        !city ||
-        !country ||
-        !address ||
-        !pincode ||
-        !phone
-    ) {
-        throw new ErrorHandler(
-            "Please provide complete shipping details.",
-            400
-        );
+    if (!contact_name || !district || !city || !country || !address || !pincode || !phone) {
+        throw new ErrorHandler("Please provide complete shipping details.", 400);
     }
 
     if (!["Online", "Cash on Delivery"].includes(payment_type)) {
@@ -69,17 +40,11 @@ export const placeNewOrder = async (user_id, data) => {
     for (const item of items) {
 
         if (!item?.product?.id) {
-            throw new ErrorHandler(
-                "Invalid product information.",
-                400
-            );
+            throw new ErrorHandler("Invalid product information.", 400);
         }
 
         if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
-            throw new ErrorHandler(
-                "Invalid product quantity.",
-                400
-            );
+            throw new ErrorHandler("Invalid product quantity.", 400);
         }
     }
 
@@ -114,10 +79,7 @@ export const placeNewOrder = async (user_id, data) => {
         const products = productResult.rows;
 
         if (products.length !== productIds.length) {
-            throw new ErrorHandler(
-                "One or more products were not found.",
-                404
-            );
+            throw new ErrorHandler("One or more products were not found.", 404);
         }
 
         const quantityByProduct = {};
@@ -149,11 +111,9 @@ export const placeNewOrder = async (user_id, data) => {
 
             const basePrice = Number(product.price);
 
-            const selectedColor =
-                item.color?.trim() || null;
+            const selectedColor = item.color?.trim() || null;
 
-            const selectedVariant =
-                item.variant?.trim() || null;
+            const selectedVariant = item.variant?.trim() || null;
 
             let unitPrice = basePrice;
 
@@ -186,9 +146,7 @@ export const placeNewOrder = async (user_id, data) => {
                     );
                 }
 
-                unitPrice =
-                    Number(variant.price) +
-                    (unitPrice - basePrice);
+                unitPrice = Number(variant.price) + (unitPrice - basePrice);
             }
 
             subtotal += unitPrice * item.quantity;
@@ -214,8 +172,7 @@ export const placeNewOrder = async (user_id, data) => {
         let discount = 0;
         let appliedCouponCode = null;
 
-        const requestedCoupon =
-            coupon_code?.trim() || null;
+        const requestedCoupon = coupon_code?.trim() || null;
 
         if (requestedCoupon) {
 

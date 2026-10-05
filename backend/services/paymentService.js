@@ -3,11 +3,7 @@ import stripe from "../config/stripe.js";
 import ErrorHandler from "../middlewares/errorMiddleware.js";
 
 
-export const generatePaymentIntent = async (
-    client,
-    order_id,
-    total_price
-) => {
+export const generatePaymentIntent = async (client, order_id, total_price) => {
 
     const paymentIntent = await stripe.paymentIntents.create({
         amount: total_price * 100,
@@ -226,10 +222,7 @@ export const handlePaymentCanceled = async (paymentIntent) => {
 };
 
 
-export const handleStripeWebhook = async (
-    body,
-    signature
-) => {
+export const handleStripeWebhook = async (body, signature) => {
 
     let event;
 
@@ -275,10 +268,7 @@ export const handleStripeWebhook = async (
 };
 
 
-export const confirmOrderPayment = async (
-    user_id,
-    order_id
-) => {
+export const confirmOrderPayment = async (user_id, order_id) => {
 
     const result = await database.query(
         `SELECT
@@ -295,23 +285,14 @@ export const confirmOrderPayment = async (
         [order_id]
     );
 
-    if (
-        result.rows.length === 0 ||
-        result.rows[0].buyer_id !== user_id
-    ) {
-        throw new ErrorHandler(
-            "Order not found.",
-            404
-        );
+    if (result.rows.length === 0 || result.rows[0].buyer_id !== user_id) {
+        throw new ErrorHandler("Order not found.", 404);
     }
 
     const order = result.rows[0];
 
     if (order.payment_type !== "Online") {
-        throw new ErrorHandler(
-            "Only online orders can be confirmed.",
-            400
-        );
+        throw new ErrorHandler("Only online orders can be confirmed.", 400);
     }
 
     if (order.payment_status !== "Paid") {
@@ -351,10 +332,7 @@ export const confirmOrderPayment = async (
 };
 
 
-export const abandonOrder = async (
-    user_id,
-    order_id
-) => {
+export const abandonOrder = async (user_id, order_id) => {
 
     const result = await database.query(
         `SELECT

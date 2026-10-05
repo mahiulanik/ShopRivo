@@ -40,12 +40,7 @@ export const getAllCoupons = async () => {
 
 export const createCoupon = async (data, user_id) => {
 
-    const {
-        discount_type,
-        discount_value,
-        min_amount,
-        expires_at
-    } = data;
+    const {discount_type, discount_value, min_amount, expires_at} = data;
 
     const code =
         typeof data.code === "string"
@@ -53,33 +48,21 @@ export const createCoupon = async (data, user_id) => {
             : "";
 
     if (!code || !/^[A-Z0-9]+$/.test(code)) {
-        throw new ErrorHandler(
-            "Coupon code must contain only letters and numbers.",
-            400
-        );
+        throw new ErrorHandler("Coupon code must contain only letters and numbers.", 400);
     }
 
     if (!["percentage", "fixed"].includes(discount_type)) {
-        throw new ErrorHandler(
-            "Discount type must be either 'percentage' or 'fixed'.",
-            400
-        );
+        throw new ErrorHandler("Discount type must be either 'percentage' or 'fixed'.", 400);
     }
 
     const discountValue = Number(discount_value);
 
     if (!Number.isInteger(discountValue) || discountValue <= 0) {
-        throw new ErrorHandler(
-            "Discount value must be a positive integer.",
-            400
-        );
+        throw new ErrorHandler("Discount value must be a positive integer.", 400);
     }
 
     if (discount_type === "percentage" && discountValue > 100) {
-        throw new ErrorHandler(
-            "Percentage discount cannot exceed 100.",
-            400
-        );
+        throw new ErrorHandler("Percentage discount cannot exceed 100.", 400);
     }
 
     const minimumAmount =
@@ -90,10 +73,7 @@ export const createCoupon = async (data, user_id) => {
             : Number(min_amount);
 
     if (!Number.isInteger(minimumAmount) || minimumAmount < 0) {
-        throw new ErrorHandler(
-            "Minimum shopping amount must be 0 or more.",
-            400
-        );
+        throw new ErrorHandler("Minimum shopping amount must be 0 or more.", 400);
     }
 
     if (expires_at && Number.isNaN(new Date(expires_at).getTime())) {
@@ -109,10 +89,7 @@ export const createCoupon = async (data, user_id) => {
     );
 
     if (existingCoupon.rows.length > 0) {
-        throw new ErrorHandler(
-            `Coupon code "${code}" already exists.`,
-            409
-        );
+        throw new ErrorHandler(`Coupon code "${code}" already exists.`, 409);
     }
 
     const result = await database.query(
@@ -201,20 +178,14 @@ export const validateCoupon = async (code, subtotal) => {
     const coupon = result.rows[0];
 
     if (!coupon.is_active) {
-        throw new ErrorHandler(
-            "This coupon is no longer active.",
-            400
-        );
+        throw new ErrorHandler("This coupon is no longer active.", 400);
     }
 
     if (
         coupon.expires_at &&
         new Date(coupon.expires_at) < new Date(new Date().toDateString())
     ) {
-        throw new ErrorHandler(
-            "This coupon has expired.",
-            400
-        );
+        throw new ErrorHandler("This coupon has expired.", 400);
     }
 
     if (subtotal < Number(coupon.min_amount)) {

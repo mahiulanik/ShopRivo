@@ -39,10 +39,7 @@ export const deleteMedia = async (media_id) => {
             error.message
         );
 
-        throw new ErrorHandler(
-            "Failed to delete image from storage.",
-            500
-        );
+        throw new ErrorHandler("Failed to delete image from storage.", 500);
     }
 
     await database.query(

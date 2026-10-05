@@ -3,31 +3,17 @@ import ErrorHandler from "../middlewares/errorMiddleware.js";
 import { fetchSingleProduct } from "./productService.js";
 
 
-export const postProductReview = async (
-    user_id,
-    product_id,
-    data
-) => {
+export const postProductReview = async (user_id, product_id, data) => {
 
     const rating = Number(data.rating);
     const comment = data.comment?.trim();
 
-    if (
-        !Number.isFinite(rating) ||
-        rating < 0 ||
-        rating > 5
-    ) {
-        throw new ErrorHandler(
-            "Rating must be between 0 and 5.",
-            400
-        );
+    if (!Number.isFinite(rating) || rating < 0 || rating > 5) {
+        throw new ErrorHandler("Rating must be between 0 and 5.", 400);
     }
 
     if (!comment) {
-        throw new ErrorHandler(
-            "Comment is required.",
-            400
-        );
+        throw new ErrorHandler("Comment is required.", 400);
     }
 
     const productResult = await database.query(
@@ -38,10 +24,7 @@ export const postProductReview = async (
     );
 
     if (productResult.rows.length === 0) {
-        throw new ErrorHandler(
-            "Product not found.",
-            404
-        );
+        throw new ErrorHandler("Product not found.", 404);
     }
 
     const purchaseResult = await database.query(
@@ -62,10 +45,7 @@ export const postProductReview = async (
     );
 
     if (purchaseResult.rows.length === 0) {
-        throw new ErrorHandler(
-            "You can only review a product you've purchased.",
-            403
-        );
+        throw new ErrorHandler("You can only review a product you've purchased.", 403);
     }
 
     const client = await database.connect();
@@ -168,10 +148,7 @@ export const postProductReview = async (
 };
 
 
-export const deleteReview = async (
-    user_id,
-    product_id
-) => {
+export const deleteReview = async (user_id, product_id) => {
 
     const client = await database.connect();
 

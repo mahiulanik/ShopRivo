@@ -29,16 +29,7 @@ export const getAddress = async (user_id) => {
 
 export const createAddress = async (user_id, data) => {
 
-    const {
-        contact_name,
-        phone,
-        address,
-        area,
-        district,
-        city,
-        pincode,
-        country
-    } = data;
+    const {contact_name, phone, address, area, district, city, pincode, country} = data;
 
     if (!contact_name || !phone || !address || !district || !city || !pincode || !country) {
         throw new ErrorHandler("Please provide all required fields.", 400);
@@ -54,10 +45,7 @@ export const createAddress = async (user_id, data) => {
     );
 
     if (existingAddress.rows.length > 0) {
-        throw new ErrorHandler(
-            "You already have a saved address. Please update it instead.",
-            400
-        );
+        throw new ErrorHandler("You already have a saved address. Please update it instead.", 400);
     }
 
     const result = await database.query(
@@ -94,16 +82,7 @@ export const createAddress = async (user_id, data) => {
 
 export const updateAddress = async (user_id, address_id, data) => {
 
-    const {
-        contact_name,
-        phone,
-        address,
-        area,
-        district,
-        city,
-        pincode,
-        country
-    } = data;
+    const {contact_name, phone, address, area, district, city, pincode, country} = data;
 
     if (!contact_name || !phone || !address || !district || !city || !pincode || !country) {
         throw new ErrorHandler("Please provide all required fields.", 400);

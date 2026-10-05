@@ -31,10 +31,7 @@ export const register = async (data) => {
     }
 
     if (password.length < 8 || password.length > 16) {
-        throw new ErrorHandler(
-            "Password must be between 8 and 16 characters.",
-            400
-        );
+        throw new ErrorHandler("Password must be between 8 and 16 characters.", 400);
     }
 
     const existingUser = await database.query(
@@ -46,10 +43,7 @@ export const register = async (data) => {
     );
 
     if (existingUser.rows.length > 0) {
-        throw new ErrorHandler(
-            "User already registered with this email.",
-            409
-        );
+        throw new ErrorHandler("User already registered with this email.", 409);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -136,10 +130,7 @@ export const refreshAccessToken = async (refreshToken) => {
     try {
         decoded = verifyRefreshToken(refreshToken);
     } catch (error) {
-        throw new ErrorHandler(
-            "Invalid or expired refresh token.",
-            401
-        );
+        throw new ErrorHandler("Invalid or expired refresh token.", 401);
     }
 
     const tokenHash = hashToken(refreshToken);
@@ -298,31 +289,19 @@ export const resetPassword = async (
 ) => {
 
     if (!token) {
-        throw new ErrorHandler(
-            "Reset token is required.",
-            400
-        );
+        throw new ErrorHandler("Reset token is required.", 400);
     }
 
     if (!password || !confirmPassword) {
-        throw new ErrorHandler(
-            "Password and confirm password are required.",
-            400
-        );
+        throw new ErrorHandler("Password and confirm password are required.", 400);
     }
 
     if (password !== confirmPassword) {
-        throw new ErrorHandler(
-            "Passwords do not match.",
-            400
-        );
+        throw new ErrorHandler("Passwords do not match.", 400);
     }
 
     if (password.length < 8 || password.length > 16) {
-        throw new ErrorHandler(
-            "Password must be between 8 and 16 characters.",
-            400
-        );
+        throw new ErrorHandler("Password must be between 8 and 16 characters.", 400);
     }
 
     const hashedToken = hashToken(token);
@@ -337,10 +316,7 @@ export const resetPassword = async (
     );
 
     if (existingUser.rows.length === 0) {
-        throw new ErrorHandler(
-            "Invalid or expired reset token.",
-            400
-        );
+        throw new ErrorHandler("Invalid or expired reset token.", 400);
     }
 
     const user = existingUser.rows[0];
@@ -373,31 +349,18 @@ export const resetPassword = async (
 
 export const changePassword = async (user_id, data) => {
 
-    const {
-        currentPassword,
-        newPassword,
-        confirmNewPassword
-    } = data;
+    const {currentPassword, newPassword, confirmNewPassword} = data;
 
     if (!currentPassword || !newPassword || !confirmNewPassword) {
-        throw new ErrorHandler(
-            "Please provide all required fields.",
-            400
-        );
+        throw new ErrorHandler("Please provide all required fields.", 400);
     }
 
     if (newPassword !== confirmNewPassword) {
-        throw new ErrorHandler(
-            "New passwords do not match.",
-            400
-        );
+        throw new ErrorHandler("New passwords do not match.", 400);
     }
 
     if (newPassword.length < 8 || newPassword.length > 16) {
-        throw new ErrorHandler(
-            "Password must be between 8 and 16 characters.",
-            400
-        );
+        throw new ErrorHandler("Password must be between 8 and 16 characters.", 400);
     }
 
     const existingUser = await database.query(
@@ -420,10 +383,7 @@ export const changePassword = async (user_id, data) => {
     );
 
     if (!isPasswordMatch) {
-        throw new ErrorHandler(
-            "Current password is incorrect.",
-            401
-        );
+        throw new ErrorHandler("Current password is incorrect.", 401);
     }
 
     const isSamePassword = await bcrypt.compare(
@@ -432,16 +392,10 @@ export const changePassword = async (user_id, data) => {
     );
 
     if (isSamePassword) {
-        throw new ErrorHandler(
-            "New password must be different from current password.",
-            400
-        );
+        throw new ErrorHandler("New password must be different from current password.", 400);
     }
 
-    const hashedPassword = await bcrypt.hash(
-        newPassword,
-        10
-    );
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     await database.query(
         `UPDATE users
@@ -467,20 +421,14 @@ export const updateProfile = async (user_id, data, file) => {
     const { name, email } = data;
 
     if (!name || !email) {
-        throw new ErrorHandler(
-            "Please provide all required fields.",
-            400
-        );
+        throw new ErrorHandler("Please provide all required fields.", 400);
     }
 
     const normalizedName = name.trim();
     const normalizedEmail = email.trim().toLowerCase();
 
     if (!normalizedName || !normalizedEmail) {
-        throw new ErrorHandler(
-            "Name and email cannot be empty.",
-            400
-        );
+        throw new ErrorHandler("Name and email cannot be empty.", 400);
     }
 
     const existingUser = await database.query(
@@ -507,10 +455,7 @@ export const updateProfile = async (user_id, data, file) => {
     );
 
     if (duplicateEmail.rows.length > 0) {
-        throw new ErrorHandler(
-            "Email is already in use.",
-            409
-        );
+        throw new ErrorHandler("Email is already in use.", 409);
     }
 
     let avatar = user.avatar;
@@ -607,10 +552,7 @@ export const getGoogleAuthUrl = () => {
 export const googleLogin = async (code) => {
 
     if (!code) {
-        throw new ErrorHandler(
-            "Google authorization code is missing.",
-            400
-        );
+        throw new ErrorHandler("Google authorization code is missing.", 400);
     }
 
 
@@ -636,10 +578,7 @@ export const googleLogin = async (code) => {
 
 
     if (!email) {
-        throw new ErrorHandler(
-            "Google account email not found.",
-            400
-        );
+        throw new ErrorHandler("Google account email not found.", 400);
     }
 
 
