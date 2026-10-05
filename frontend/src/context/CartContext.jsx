@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "./AuthContext";
 
 const CartContext = createContext(null);
@@ -41,16 +41,16 @@ export function CartProvider({ children }) {
     localStorage.removeItem(LEGACY_CART_KEY);
   }, []);
 
-  // Persist only under the signed-in account; guests have no stored cart.
-  useEffect(() => {
-    if (!userId) return;
-    localStorage.setItem(storageKey(userId), JSON.stringify(items));
-  }, [items, userId]);
+  const hydratedFor = useRef(null);
 
-  // Switch carts when the signed-in account changes (login / logout).
   useEffect(() => {
-    setItems(readCart(userId));
-  }, [userId]);
+    if (hydratedFor.current !== userId) {
+      hydratedFor.current = userId;
+      setItems(readCart(userId));
+      return;
+    }
+    if (userId) localStorage.setItem(storageKey(userId), JSON.stringify(items));
+  }, [items, userId]);
 
   const addItem = useCallback(
     (product, quantity = 1, options = {}) => {
