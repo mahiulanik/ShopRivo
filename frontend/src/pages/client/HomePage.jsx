@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { Headphones, Laptop, Smartphone, Watch, Zap } from "lucide-react";
 import { fetchCategories, fetchProducts } from "../../api/productApi";
 import { getErrorMessage } from "../../api/client";
@@ -42,22 +42,64 @@ const categoryIcons = {
 
 export default function HomePage() {
   const toast = useToast();
+  const [searchParams] = useSearchParams();
+  const activeCategory = searchParams.get("category") || "";
   const [data, setData] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [categoryProducts, setCategoryProducts] = useState({});
   const [loading, setLoading] = useState(true);
+  const rowRefs = useRef({});
+
+  const scrollToCategory = (name) => {
+    const el = rowRefs.current[name];
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   useEffect(() => {
-    Promise.all([
-      fetchProducts({ page: 1 }),
-      fetchCategories().catch(() => ({ categories: [] })),
-    ])
-      .then(([productsRes, categoriesRes]) => {
+    let active = true;
+
+    (async () => {
+      try {
+        const [productsRes, categoriesRes] = await Promise.all([
+          fetchProducts({ page: 1 }),
+          fetchCategories().catch(() => ({ categories: [] })),
+        ]);
+        if (!active) return;
+
+        const categoryList = categoriesRes.categories || [];
         setData(productsRes);
-        setCategories(categoriesRes.categories || []);
-      })
-      .catch((err) => toast.error(getErrorMessage(err, "Failed to load products")))
-      .finally(() => setLoading(false));
+        setCategories(categoryList);
+
+        const rows = await Promise.all(
+          categoryList.map(async (cat) => {
+            try {
+              const res = await fetchProducts({ category: cat.name, page: 1 });
+              return [cat.name, res.products || []];
+            } catch {
+              return [cat.name, []];
+            }
+          })
+        );
+        if (!active) return;
+
+        setCategoryProducts(Object.fromEntries(rows));
+      } catch (err) {
+        if (active) toast.error(getErrorMessage(err, "Failed to load products"));
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
   }, [toast]);
+
+  useEffect(() => {
+    if (loading || !activeCategory) return undefined;
+    const timer = setTimeout(() => scrollToCategory(activeCategory), 80);
+    return () => clearTimeout(timer);
+  }, [loading, activeCategory]);
 
   return (
     <div>
@@ -71,18 +113,19 @@ export default function HomePage() {
         <section className="container-x mt-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap gap-3">
-              {categories.map((cat, index) => {
+              {categories.map((cat) => {
                 const iconKey = Object.keys(categoryIcons).find(
                   (key) => key.toLowerCase() === (cat.name || "").toLowerCase()
                 );
                 const Icon = iconKey ? categoryIcons[iconKey] : Zap;
-                const isSelected = index === 0;
+                const isActive = activeCategory === cat.name;
                 return (
                   <Link
                     key={cat.id || cat.name}
-                    to={`/shop?category=${encodeURIComponent(cat.name)}`}
+                    to={`/?category=${encodeURIComponent(cat.name)}`}
+                    onClick={() => scrollToCategory(cat.name)}
                     className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition ${
-                      isSelected
+                      isActive
                         ? "bg-brand-700 text-white hover:bg-brand-800"
                         : "bg-gray-100 text-gray-700 hover:bg-brand-700 hover:text-white dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-brand-700"
                     }`}
@@ -121,6 +164,27 @@ export default function HomePage() {
               <ProductCarousel title="Top Rated" to="/shop" products={data.topRatedProducts} />
             </section>
           ) : null}
+
+          {/* One row per category */}
+          {categories.map((cat) => {
+            const items = categoryProducts[cat.name] || [];
+            if (!items.length) return null;
+            return (
+              <section
+                key={cat.id || cat.name}
+                ref={(el) => {
+                  rowRefs.current[cat.name] = el;
+                }}
+                className="container-x mt-12 scroll-mt-24"
+              >
+                <ProductCarousel
+                  title={cat.name}
+                  to={`/shop?category=${encodeURIComponent(cat.name)}`}
+                  products={items}
+                />
+              </section>
+            );
+          })}
         </>
       )}
 

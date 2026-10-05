@@ -116,7 +116,7 @@ export default function HeroCarousel() {
             className="h-full w-full shrink-0"
           >
             <Link
-              to={`/shop?category=${encodeURIComponent(slide.category)}`}
+              to={`/?category=${encodeURIComponent(slide.category)}`}
               tabIndex={i === index ? 0 : -1}
               className="relative block h-full w-full"
               aria-label={`Shop ${slide.category}`}

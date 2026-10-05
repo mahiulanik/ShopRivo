@@ -100,7 +100,7 @@ export default function Footer() {
             {categories.map((cat) => (
               <li key={cat}>
                 <Link
-                  to={`/shop?category=${encodeURIComponent(cat)}`}
+                  to={`/?category=${encodeURIComponent(cat)}`}
                   className="transition hover:text-brand-700"
                 >
                   {cat}
