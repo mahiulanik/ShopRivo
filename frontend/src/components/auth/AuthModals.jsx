@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
@@ -30,6 +30,20 @@ function GoogleGIcon() {
 
 function GoogleAuthSection() {
   const [loading, setLoading] = useState(false);
+
+  // The Google login is a full-page redirect. If the user cancels it (back
+  // button) the page is restored from the bfcache with this state intact, so
+  // the button would stay stuck on "Redirecting...". Reset whenever the page
+  // is shown again without actually navigating away.
+  useEffect(() => {
+    const reset = () => setLoading(false);
+    window.addEventListener("focus", reset);
+    window.addEventListener("pageshow", reset);
+    return () => {
+      window.removeEventListener("focus", reset);
+      window.removeEventListener("pageshow", reset);
+    };
+  }, []);
 
   const continueWithGoogle = () => {
     if (loading) return;
