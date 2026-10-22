@@ -87,6 +87,14 @@ app.use(cookieParser());
 app.set("etag", false);
 
 
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    uptime: process.uptime(),
+  });
+});
+
+
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/product", productRoutes);
