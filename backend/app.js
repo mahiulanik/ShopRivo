@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 
 import createTables from "./utils/createTables.js";
 import { errorMiddleware } from "./middlewares/errorMiddleware.js";
+import { globalLimiter } from "./middlewares/rateLimit.js";
 
 import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
@@ -93,6 +94,9 @@ app.get("/health", (req, res) => {
     uptime: process.uptime(),
   });
 });
+
+// Global Rate Limiter
+app.use("/api", globalLimiter);
 
 
 // API Routes

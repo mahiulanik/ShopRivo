@@ -5,9 +5,10 @@ const router = express.Router();
 
 import * as orderController from "../controllers/orderController.js"
 import { isAuthenticated, authorizedRoles } from "../middlewares/authMiddleware.js";
+import { orderLimiter } from "../middlewares/rateLimit.js";
 
 
-router.post("/new", isAuthenticated, orderController.placeNewOrderController);
+router.post("/new", orderLimiter, isAuthenticated, orderController.placeNewOrderController);
 router.get("/my-orders", isAuthenticated, orderController.fetchMyOrdersController);
 router.get("/admin/all", isAuthenticated, authorizedRoles("Admin"), orderController.fetchAllOrdersController);
 router.post("/:orderId/confirm", isAuthenticated, orderController.confirmOrderPaymentController);

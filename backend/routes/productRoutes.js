@@ -5,6 +5,7 @@ const router = express.Router()
 import * as productController from "../controllers/productController.js"
 import { isAuthenticated, authorizedRoles } from "../middlewares/authMiddleware.js";
 import upload from "../middlewares/multer.js";
+import { aiSearchLimiter } from "../middlewares/rateLimit.js";
 
 const productUpload = upload.fields([
     { name: "images", maxCount: 10 },
@@ -17,7 +18,7 @@ router.get("/", productController.fetchAllProductsController);
 router.get("/:productId", productController.fetchSingleProductController);
 router.patch("/admin/update/:productId", isAuthenticated, authorizedRoles("Admin", "Uploader"), productUpload, productController.updateProductController);
 router.delete("/admin/delete/:productId", isAuthenticated, authorizedRoles("Admin", "Uploader"), productController.deleteProductController);
-router.post("/ai-search", productController.fetchAIFilteredProductsController);
+router.post("/ai-search", aiSearchLimiter, productController.fetchAIFilteredProductsController);
 
 
 
